@@ -60,3 +60,12 @@ function pdf_from_cdf(y, h)
 
     return pdf_vals
 end
+
+"""
+    eval_cdf(f_cdf, x)
+Evaluates the cdf at a range of values in a vector x. 
+"""
+function eval_cdf(cdf, x)
+    # This truncates the results dealing with errors in the numerical approximation
+    return [min(1.0, cdf(xi)) for xi in x]
+end

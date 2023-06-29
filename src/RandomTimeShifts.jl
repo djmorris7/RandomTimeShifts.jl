@@ -12,7 +12,7 @@ export diff_linear,
        calculate_moments_1D
 
 include("./numerically_approx_pdf_cdf.jl")
-export W_cdf_approx, pdf_from_cdf
+export W_cdf_approx, pdf_from_cdf, eval_cdf
 
 include("./inverse_LST.jl")
 export invert_lst, construct_W_cdf_ilst

@@ -67,7 +67,7 @@ Outputs:
 """
 function construct_W_cdf_ilst(lst_w, q_star; N_fevals = 21)
     η, β = load_cme_hyper_params(N_fevals)
-    function W_cdf_ilst(x)
+    function W_cdf(x)
         if x == 0
             return q_star
         else
