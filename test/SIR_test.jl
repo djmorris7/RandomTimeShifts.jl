@@ -207,12 +207,12 @@ end
 
 ##
 
-"""
-Test for the correctness in the SIR example. This looks at the 
-real and imaginary parts of the LST for 1000 fixed points to see 
-whether they are approximately equal up to 4 digits of accuracy.
-"""
 @testset "SIR LST" begin
+    """
+    Test for the correctness in the SIR example. This looks at the 
+    real and imaginary parts of the LST for 1000 fixed points to see 
+    whether they are approximately equal up to 4 digits of accuracy.
+    """
     Random.seed!(12345)
 
     K = Int(10^6)
@@ -243,12 +243,12 @@ whether they are approximately equal up to 4 digits of accuracy.
     # @test imag_parts_approx_equal
 end
 
-"""
-Test for the correctness in the SIR example. This looks at the 
-CDF for 100 fixed points to see whether they are approximately 
-equal up to 3 digits of accuracy.
-"""
 @testset "SIR CDF" begin
+    """
+    Test for the correctness in the SIR example. This looks at the 
+    CDF for 100 fixed points to see whether they are approximately 
+    equal up to 3 digits of accuracy.
+    """
     Random.seed!(12345)
 
     K = Int(10^6)
