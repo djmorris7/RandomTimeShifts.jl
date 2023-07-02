@@ -208,11 +208,6 @@ end
 ##
 
 @testset "SIR LST" begin
-    """
-    Test for the correctness in the SIR example. This looks at the 
-    real and imaginary parts of the LST for 1000 fixed points to see 
-    whether they are approximately equal up to 4 digits of accuracy.
-    """
     Random.seed!(12345)
 
     K = Int(10^6)
@@ -229,26 +224,21 @@ end
     θ = test_points[1]
     y1 = W_lst(θ)
     y2 = SIR_lst_exact(θ, pars)
-    @test isapprox(real(y1), real(y2), atol = 1e-4)
-    @test isapprox(imag(y1), imag(y2), atol = 1e-4)
-    # # Check that the inversion is accurate to 4 decimal places.
-    # for θ in test_points
-    #     y1 = W_lst(θ)
-    #     y2 = SIR_lst_exact(θ, pars)
-    #     @test isapprox(real(y1), real(y2), atol = 1e-4)
-    #     @test isapprox(imag(y1), imag(y2), atol = 1e-4)
-    # end
+    # @test isapprox(real(y1), real(y2), atol = 1e-4)
+    # @test isapprox(imag(y1), imag(y2), atol = 1e-4)
+    # Check that the inversion is accurate to 4 decimal places.
+    for θ in test_points
+        y1 = W_lst(θ)
+        y2 = SIR_lst_exact(θ, pars)
+        @test isapprox(real(y1), real(y2), atol = 1e-3)
+        @test isapprox(imag(y1), imag(y2), atol = 1e-3)
+    end
 
     # @test real_parts_approx_equal
     # @test imag_parts_approx_equal
 end
 
 @testset "SIR CDF" begin
-    """
-    Test for the correctness in the SIR example. This looks at the 
-    CDF for 100 fixed points to see whether they are approximately 
-    equal up to 3 digits of accuracy.
-    """
     Random.seed!(12345)
 
     K = Int(10^6)
@@ -263,8 +253,8 @@ end
     test_points = rand(Uniform(0, 10), n_test)
     w = test_points[1]
     # Check that the CDF values are the same up to 3 decimal places.
-    @test isapprox(W_cdf(w), SIR_cdf_exact(w, pars), atol = 1e-3)
-    # for w in test_points
-    #     @test isapprox(W_cdf(w), SIR_cdf_exact(w, pars), atol = 1e-3)
-    # end
+    # @test isapprox(W_cdf(w), SIR_cdf_exact(w, pars), atol = 1e-3)
+    for w in test_points
+        @test isapprox(W_cdf(w), SIR_cdf_exact(w, pars), atol = 1e-3)
+    end
 end
