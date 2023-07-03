@@ -13,7 +13,3 @@ Following this we can simply call `using RandomTimeShifts` as per normal.
 ## Coding style
 
 For demonstrative purposes we have used exact qualifiers when using the packaged code. I.e. we use `RandomTimeShifts.func()` instead of simply writing `func()`. This coding style ensures that linters in editors (like VSCode or Sublime) can provide autocompletion and suggestions.
-
-## To-dos
-
-- As it currently stands, I have not implemented an autodiff framework for discrete-time models. This is a work in progress and is a feature I intend to bring in later on 
