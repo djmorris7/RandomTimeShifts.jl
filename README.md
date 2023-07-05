@@ -5,7 +5,7 @@ This Julia package provides functionality for solving stochastic density depende
 ## Installation
 
 ```julia
-Pkg.add("git@github.com:djmorris7/RandomTimeShifts.jl.git")
+Pkg.add(url = "git@github.com:djmorris7/RandomTimeShifts.jl.git")
 ```
 
 Following this we can simply call `using RandomTimeShifts` as per normal.
