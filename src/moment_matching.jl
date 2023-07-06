@@ -47,9 +47,16 @@ function loss_func(n, pars, moments)
 end
 
 """
-    sample_generalized_gamma(a, d, p)
+    sample_generalized_gamma(pars)
 
-Sample a generalised gamma random variable with parameters (a, d, p)
+Sample a generalised gamma random variable with parameters (a, d, p) using 
+the CDF method. 
+
+Arguments: 
+    pars = parameters in form (a, d, p)
+    
+Outputs: 
+    x = a sample from GG(a, d, p)
 """
 function sample_generalized_gamma(pars)
     a, d, p = pars
@@ -70,9 +77,10 @@ Arguments:
     pars = list of pars (a, d, p) for each of the Wi
     q1 = vector of extinction probabilities for each Wi
     Z0 = the initial conditions for the branching process
+    no_extinction = (default = true) whether to condition on non-extinction
     
 Outputs: 
-    w = samples of w
+    w = vector of samples of w
 """
 function sample_W(n, pars, q1, Z0; no_extinction = true)
     w = zeros(Float64, n)
@@ -95,7 +103,7 @@ function sample_W(n, pars, q1, Z0; no_extinction = true)
 end
 
 """
-    sample_W(pars, q1, Z0; no_extinction = true)
+    sample_W(pars, q1, Z0)
 
 Sample a single realisation of W given pars, extinction probabilities. 
 
@@ -107,7 +115,7 @@ Arguments:
 Outputs: 
     w = samples of w
 """
-function sample_W(pars, q1, Z0; no_extinction = true)
+function sample_W(pars, q1, Z0)
     w = 0.0
 
     while iszero(w)
@@ -133,6 +141,9 @@ Arguments:
     moments = an array of shape (5, number types) with the moments estimated using the methods 
               from section 3.3 of the paper
     q1 = vector of extinction probabilities starting with an individual of type i
+    num_moments_loss = (default = 5) number of moments to use in the expansion. Setting a 
+                       default here lets us calculate more moments for other methods. 
+    iterations = (default = 10^5) max number of iterations to run in the optimisation.
     
 Outputs: 
     pars = an array of parameters with length number of types corresponding to each Wi

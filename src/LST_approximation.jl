@@ -1,5 +1,5 @@
 """
-    error_bounds(ϵ, μ, n)
+    error_bounds(ϵ, error_moments, n)
     
 Calculates the region about 0 to ensure the error is no more than ϵ given 
 the (n + 1)th moment μ and n. 
@@ -17,7 +17,7 @@ function error_bounds(ϵ, error_moments, n)
 end
 
 """
-    moment_coeffs(M)
+    moment_coeffs(moments)
     
 Calculates the coefficients for the LST expansion.
     
@@ -70,21 +70,25 @@ function calculate_κ(s, L, λ, h)
 end
 
 """
-    lst_s_rest(s, lst_s0_x, μ, f; ϵ = 0.1)
+    lst_s_rest(s, lst_s0_x, μ, f, λ, h; L = 0.1)
 
 Calculates the LST everywhere else by recursively applying the functional 
 equation that relates the LST to past versions.  
 
 Arguments: 
     s = the point to evaluate the lst at, this should be a scalar in R or C
-    lst_s0_x = function which evaluates the LST at s for each Wi 
+    lst_s0_x = function which evaluates the LST at s for each Wi in the neighbourhood 
+               about 0 
     μ = the mean of the imbedded process (exp(λ h))
     f = progeny generating function for the imbedded process 
+    λ = the malthusian parameter
+    h = the step size used to construct the imbedded process
+    L = (default = 0.1) the size in absolute terms of the interval about 0
         
 Outputs: 
     y = the value of the LSTs for each Wi
 """
-function lst_s_rest(s, lst_s0_x, μ, f, λ, h; L=0.1)
+function lst_s_rest(s, lst_s0_x, μ, f, λ, h; L = 0.1)
     # Use the size of the region about 0 to determine whether 
     # we can simplify things
     if abs(s) <= L
@@ -104,7 +108,7 @@ function lst_s_rest(s, lst_s0_x, μ, f, λ, h; L=0.1)
 end
 
 """
-    lst(s, lst_s0_x, lst_s_rest_x; ϵ = 0.05, Z0 = [1, 0, 0])
+    lst(s, lst_s0_x, lst_s_rest_x, Z0; L = 0.05)
 
 Calculates the full LST using the two approaches.
 
@@ -113,11 +117,12 @@ Arguments:
     lst_s0_x = function which evaluates the LST at s for each Wi in Aϵ
     lst_s_rest_x = function which evaluates the LST at s for each Wi outside Aϵ
     Z0 = initial condition for the branching process 
+    L = (default = 0.1) the size in absolute terms of the interval about 0
     
 Outputs: 
     out = the lst of W 
 """
-function lst(s, lst_s0_x, lst_s_rest_x, Z0; L=0.05)
+function lst(s, lst_s0_x, lst_s_rest_x, Z0; L = 0.1)
     y = 0.0
 
     if abs(s) <= L
@@ -149,7 +154,7 @@ function lst_s0_all(s, coeffs)
 end
 
 """
-    construct_lst(coeffs, μ_imbed, F_offspring, ϵ, Z0)
+    construct_lst(coeffs, μ_imbed, F_offspring, L, Z0, λ, h)
 
 Constructs the LST and returns a function. 
 
@@ -170,13 +175,13 @@ function construct_lst(coeffs, μ_imbed, F_offspring, L, Z0, λ, h)
     # Set up the lst in the neighbourhood about 0 and make this return the vector of 
     # lsts
     lst_s0_x(s) = lst_s0_all(s, coeffs)
-    lst_s_rest_x(s) = lst_s_rest(s, lst_s0_x, μ_imbed, F_offspring, λ, h; L=L)
-    lst_w(s) = lst(s, lst_s0_x, lst_s_rest_x, Z0; L=L)
+    lst_s_rest_x(s) = lst_s_rest(s, lst_s0_x, μ_imbed, F_offspring, λ, h; L = L)
+    lst_w(s) = lst(s, lst_s0_x, lst_s_rest_x, Z0; L = L)
     return lst_w
 end
 
 """
-    calculate_BP_contributions(omega)
+    calculate_BP_contributions(Ω)
     
 Calculates the BP contributions from the matrix omega which can 
 be calculated through either the offspring distributions or the Jacobian
@@ -230,7 +235,7 @@ Outputs:
     sol.u[end] = vector of the values of the imbedded pgf's at s. 
 """
 function F_offspring_ode(s, prob)
-    prob = remake(prob, u0=s)
+    prob = remake(prob, u0 = s)
     sol = solve(prob, Tsit5())
     return sol.u[end]
 end

@@ -1,5 +1,5 @@
 """
-    W_cdf_approx(x, W_cdf_ilt, q_star)
+    W_cdf_approx(x, W_cdf, q_star)
 
 Uses the LST for the CDF of W. This adds the point mass in 
 at x = 0. 
@@ -62,8 +62,16 @@ function pdf_from_cdf(y, h)
 end
 
 """
-    eval_cdf(f_cdf, x)
+    eval_cdf(cdf, x)
+
 Evaluates the cdf at a range of values in a vector x. 
+
+Arguments: 
+    cdf = cdf for a random variable
+    x = points to evaluate the cdf at 
+    
+Outputs: 
+    A vector of CDF values (adjusted to ensure CDF <= 1) which deals with numerical issues.
 """
 function eval_cdf(cdf, x)
     # This truncates the results dealing with errors in the numerical approximation

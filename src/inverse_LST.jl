@@ -1,23 +1,23 @@
 """
-    preload_beta_eta(max_f_evals)
+    preload_beta_eta(N_f_evals)
     
 This loads the pre-computed coefficients from http://inverselaplace.org/. These
 have been pre-calculated up to > 1000 and can be appropriately applied for a
 range of problems. 
 
 Arguments: 
-    max_f_evals = the maximum number of function evals, this is set to 21 based on the paper 
-                  that accompanies this method 
+    N_f_evals = the maximum number of function evals, this is set to 21 based on the paper 
+                that accompanies this method 
                   
 Outputs: 
     The constants η and β needed for the LST inversion
 """
-function load_cme_hyper_params(max_f_evals)
+function load_cme_hyper_params(N_f_evals)
     cme_params = JSON.parsefile(joinpath(@__DIR__, "iltcme_ext.json"))
     params = cme_params[1]
 
     for p in cme_params
-        if (p["cv2"] < params["cv2"]) && (p["n"] + 1 <= max_f_evals)
+        if (p["cv2"] < params["cv2"]) && (p["n"] + 1 <= N_f_evals)
             params = p
         end
     end
@@ -30,7 +30,7 @@ function load_cme_hyper_params(max_f_evals)
 end
 
 """
-    ilt(f, x, η, β)
+    invert_lst(f, x, η, β)
     
 Calculates the inverse laplace transform for the function f at the point(s) in x. This currently 
 supports the concentrated-matrix-exponential method
@@ -53,14 +53,15 @@ function invert_lst(f, x, η, β)
 end
 
 """
-    construct_W_cdf_ilst(lst_w; N_fevals = 21)
+    construct_W_cdf_ilst(lst_w, q_star; N_fevals = 21)
 
 Constructs the LST of the CDF of W given the LST of the PDF. 
 
 Arguments: 
     lst_w = function for computing the LST of W
     q_star = the ultimate extinction probability
-    N_fevals = 21 set at the default for the CME paper
+    N_fevals = (default = 21) this is set at the default from the CME paper
+               but can be adjusted. 
         
 Outputs: 
     W_cdf = the CDF of W
