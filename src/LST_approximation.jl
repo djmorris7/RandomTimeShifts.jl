@@ -84,7 +84,7 @@ Arguments:
 Outputs: 
     y = the value of the LSTs for each Wi
 """
-function lst_s_rest(s, lst_s0_x, μ, f, λ, h; L = 0.1)
+function lst_s_rest(s, lst_s0_x, μ, f, λ, h; L=0.1)
     # Use the size of the region about 0 to determine whether 
     # we can simplify things
     if abs(s) <= L
@@ -117,7 +117,7 @@ Arguments:
 Outputs: 
     out = the lst of W 
 """
-function lst(s, lst_s0_x, lst_s_rest_x, Z0; L = 0.05)
+function lst(s, lst_s0_x, lst_s_rest_x, Z0; L=0.05)
     y = 0.0
 
     if abs(s) <= L
@@ -170,8 +170,8 @@ function construct_lst(coeffs, μ_imbed, F_offspring, L, Z0, λ, h)
     # Set up the lst in the neighbourhood about 0 and make this return the vector of 
     # lsts
     lst_s0_x(s) = lst_s0_all(s, coeffs)
-    lst_s_rest_x(s) = lst_s_rest(s, lst_s0_x, μ_imbed, F_offspring, λ, h; L = L)
-    lst_w(s) = lst(s, lst_s0_x, lst_s_rest_x, Z0; L = L)
+    lst_s_rest_x(s) = lst_s_rest(s, lst_s0_x, μ_imbed, F_offspring, λ, h; L=L)
+    lst_w(s) = lst(s, lst_s0_x, lst_s_rest_x, Z0; L=L)
     return lst_w
 end
 
@@ -195,15 +195,19 @@ function calculate_BP_contributions(Ω)
     rvals, rvecs = eigen(Ω)
     lvals, lvecs = eigen(Ω')
     # Get Malthusian parameter
+    λ = maximum(rvals)
+
     rvals = real.(rvals)
     lvals = real.(lvals)
     rvecs = real.(rvecs)
     lvecs = real.(lvecs)
-    λ = maximum(rvals)
+    λ_left = maximum(rvals)
+    λ_right = maximum(lvals)
+    @assert λ_left ≈ λ_right
 
     # Get u and v corresponding to the right and left eigenvectors of λ
-    r_index = findfirst(x -> x == λ, rvals)
-    l_index = findfirst(x -> x == λ, lvals)
+    r_index = findfirst(x -> x == λ_right, rvals)
+    l_index = findfirst(x -> x == λ_left, lvals)
     u = rvecs[:, r_index]
     v = lvecs[:, l_index]
 
@@ -228,7 +232,7 @@ Outputs:
     sol.u[end] = vector of the values of the imbedded pgf's at s. 
 """
 function F_offspring_ode(s, prob)
-    prob = remake(prob, u0 = s)
+    prob = remake(prob, u0=s)
     sol = solve(prob, Tsit5())
     return sol.u[end]
 end
