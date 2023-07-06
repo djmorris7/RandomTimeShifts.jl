@@ -194,20 +194,18 @@ function calculate_BP_contributions(Ω)
     # Compute right and left eigenvectors 
     rvals, rvecs = eigen(Ω)
     lvals, lvecs = eigen(Ω')
-    # Get Malthusian parameter
-    λ = maximum(rvals)
-
     rvals = real.(rvals)
     lvals = real.(lvals)
     rvecs = real.(rvecs)
     lvecs = real.(lvecs)
-    λ_left = maximum(rvals)
-    λ_right = maximum(lvals)
-    @assert λ_left ≈ λ_right
+
+    # Get malthusian parameter
+    λ = maximum(rvals)
 
     # Get u and v corresponding to the right and left eigenvectors of λ
-    r_index = findfirst(x -> x == λ_right, rvals)
-    l_index = findfirst(x -> x == λ_left, lvals)
+    # and note that due to small rounding errors we check for ≈
+    r_index = findfirst(x -> x ≈ λ, rvals)
+    l_index = findfirst(x -> x ≈ λ, lvals)
     u = rvecs[:, r_index]
     v = lvecs[:, l_index]
 
