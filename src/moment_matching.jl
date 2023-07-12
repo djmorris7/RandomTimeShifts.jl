@@ -61,6 +61,7 @@ Outputs:
 function sample_generalized_gamma(pars)
     a, d, p = pars
     u = rand()
+    # Use the inverse of the incomplete Gamma function
     y = gamma_inc_inv(d / p, u, 1 - u)
     # Apply transformation to obtain Generalized Gamma random variables
     x = a * y^(1 / p)
