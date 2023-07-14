@@ -22,14 +22,15 @@ function moments_gengamma(n, a, d, p)
 end
 
 """
-    loss_func(n, pars, moments)
+    loss_func(x, moments, q; num_moments_loss = 5)
     
 Calculates the squared loss function (normalised) to be optimised.
     
 Arguments: 
-    n = the moment number
     pars = the parameters (a, d, p) of the GG 
     moments = the vector of moments
+    q = the extinction probability
+    num_moments_loss = (default = 5) the number of moments
     
 Outputs: 
     loss = the value of the loss function for a particular moment
@@ -41,22 +42,54 @@ function loss_func(pars, moments, q; num_moments_loss=5)
         y1 = moments[i] / (1 - q)
         y2 = moments_gengamma(i, a, d, p)
         η = round(y1; sigdigits=1)
-        loss += ((y1 - y2) / η)^2
+        loss += ((y2 - y1))^2 / η
     end
     return loss
 end
 
-# function loss_func(n, pars, moments)
-#     a, d, p = pars
-#     y1 = moments[n]
-#     y2 = moments_gengamma(n, a, d, p)
-#     loss = if isinf(y2)
-#         -Inf
-#     else
-#         ((y1 - y2) / round(y1; sigdigits=1))^2
-#     end
-#     return loss
-# end
+"""
+    ∇loss_func!(g, x, moments, q; num_moments_loss = 5)
+    
+Calculates the gradient of the loss function (normalised) to be optimised.
+    
+Arguments: 
+    g = the gradient which is updated inplace
+    pars = the parameters (a, d, p) of the GG 
+    moments = the vector of moments
+    q = the extinction probability
+    num_moments_loss = (default = 5) the number of moments
+    
+Outputs: 
+    nothing — g is updated in place
+"""
+function ∇loss_func!(g, pars, moments, q; num_moments_loss=5)
+    a, d, p = pars
+
+    g .= 0.0
+
+    for i in 1:num_moments_loss
+        ∂a = i * a^(i - 1) * gamma((d + i) / p) / gamma(d / p)
+        ∂d = a^i *
+             (gamma((d + i) / p) * polygamma(0, (d + i) / p) * (1 / p) * gamma(d / p) -
+              gamma((d + i) / p) * gamma(d / p) * polygamma(0, d / p) * (1 / p)) /
+             gamma(d / p)^2
+        ∂p = a^i *
+             (gamma((d + i) / p) * polygamma(0, (d + i) / p) * (-(d + i) / p^2) *
+              gamma(d / p) -
+              gamma((d + i) / p) * gamma(d / p) * polygamma(0, d / p) * (-d / p^2)) /
+             gamma(d / p)^2
+
+        y1 = moments[i] / (1 - q)
+        y2 = moments_gengamma(i, a, d, p)
+        η = round(y1; sigdigits=1)
+        c = 2 / η * (y2 - y1)
+
+        g[1] += c * ∂a
+        g[2] += c * ∂d
+        g[3] += c * ∂p
+    end
+    return nothing
+end
 
 """
     sample_generalized_gamma(pars)
@@ -161,7 +194,7 @@ Arguments:
 Outputs: 
     pars = an array of parameters with length number of types corresponding to each Wi
 """
-function minimise_loss_dropin(moments, q1; iterations=10^3)
+function minimise_loss_dropin(moments, q1)
     # get the number of loss functions to construct
     num_init_conds = size(moments, 2)
 
@@ -172,60 +205,20 @@ function minimise_loss_dropin(moments, q1; iterations=10^3)
     # Initial guess is uninformative and reflects a boring distribution
     x0 = [1.0, 1.0, 1.0]
 
+    # Wide bounds on the parameters 
+    lower_bd = 1e-4 * ones(3)
+    upper_bd = 50 * ones(3)
+    # Initial guess is uninformative and reflects a boring distribution
+    x0 = [1.0, 1.0, 1.0]
+
+    inner_optimizer = BFGS()
+
     for i in eachindex(pars)
         l = x -> loss_func(x, moments[:, i], q1[i])
-
-        inner_optimizer = BFGS()
-        sol = Optim.optimize(l, lower_bd, upper_bd, x0, Fminbox(inner_optimizer);
-            autodiff=:forward)
-        # sol = Optim.optimize(l, lower_bd, upper_bd, x0)
-        # sol = Optim.optimize(l, lower_bd, upper_bd, x0, Fminbox(ConjugateGradient()),
-        #                      Optim.Options(; allow_f_increases = true,
-        #                                    iterations = iterations))
+        ∇l = (g, x) -> ∇loss_func!(g, x, moments[:, i], q1[i])
+        sol = Optim.optimize(l, ∇l, lower_bd, upper_bd, x0, Fminbox(inner_optimizer))
         pars[i] = sol.minimizer
     end
 
     return pars
 end
-
-# function minimise_loss(moments, q1; num_moments_loss = 5, iterations = 10^3)
-#     # get the number of loss functions to construct
-#     num_loss_funcs = size(moments, 2)
-
-#     weights = ones(num_moments_loss) / num_moments_loss
-#     # construct the loss functions for all the conditional moments
-#     loss_funcs = Dict(j => pars -> sum(weights[i] *
-#                                        loss_func(i, pars, moments[:, j] ./ (1 - q1[j]))
-#                                        for
-#                                        i in 1:num_moments_loss) for j in 1:num_loss_funcs)
-
-#     # Wide bounds on the parameters 
-#     lower_bd = [0.0, 0.0, 0.0]
-#     upper_bd = [50.0, 50.0, 50.0]
-#     # Initial guess is uninformative and reflects a boring distribution
-#     x0 = [1.0, 1.0, 1.0]
-
-#     # optimise all loss functions using the Conjugate-Gradient method which approximates 
-#     # the gradient using finite differences. 
-#     # TODO: 
-#     # - Possible improvement here to utilise analytical gradient 
-#     # - Possible source of error is that conjugate-gradient on constraint not good
-#     #   but so far seems fine for the examples explored 
-#     opt_res = Dict(j => Optim.optimize(loss_funcs[j],
-#                                        lower_bd,
-#                                        upper_bd,
-#                                        x0,
-#                                        Fminbox(ConjugateGradient()),
-#                                        Optim.Options(; allow_f_increases = true,
-#                                                      iterations = iterations))
-#                    for j in eachindex(loss_funcs))
-
-#     # initialise an array of arrays to hold the parameters of the distributions
-#     pars = [zeros(3) for _ in 1:num_loss_funcs]
-#     # make sure they're inserted based on type order 
-#     for (k, v) in opt_res
-#         pars[k] .= v.minimizer
-#     end
-
-#     return pars
-# end
