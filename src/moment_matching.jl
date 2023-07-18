@@ -194,7 +194,7 @@ Arguments:
 Outputs: 
     pars = an array of parameters with length number of types corresponding to each Wi
 """
-function minimise_loss_dropin(moments, q1)
+function minimise_loss(moments, q1)
     # get the number of loss functions to construct
     num_init_conds = size(moments, 2)
 
