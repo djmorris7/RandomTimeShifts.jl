@@ -9,15 +9,15 @@ using Distributions
     
 Function which differentiates the functional equation of the PGF and LST. 
         
-Arguments: 
-    β = effective transmission parameter 
-    lifetimes = β + γ
-    λ = the growth rate 
-    phis = the previous moments used to calculate the nth moment
+### Arguments: 
+    - β: effective transmission parameter 
+    - lifetimes: β + γ
+    - λ: the growth rate 
+    - phis: the previous moments used to calculate the nth moment
     
-Outputs: 
-    A[1] = coefficient of nth moment
-    b = constant term
+### Outputs: 
+    - A[1]: coefficient of nth moment
+    - b: constant term
 """
 function diff_SIR_coeffs(β, lifetimes, λ, phis)
     n_previous = length(phis)
@@ -32,13 +32,13 @@ end
 
 Evaluates the Ricatti ODE governing F(s, t) for fixed u0 = s.
 
-Arguments: 
-    u = current state
-    pars = (R0, γ_inv)
-    t = dummy variable for the current time 
+### Arguments: 
+    - u: current state
+    - pars: (R0, γ_inv)
+    - t: dummy variable for the current time 
     
-Outputs: 
-    du = value of ODE
+### Outputs: 
+    - du: value of ODE
 """
 function F_fixed_s(u, pars, t)
     R0, γ_inv = pars
@@ -68,14 +68,14 @@ sir_deterministic!(du, u, pars, t)
 Evaluate the system of ordinary differential equations for the SIR model with parameters 
 pars = (R0, γ_inv).
 
-Arguments: 
-    du = required for inplace calculations when using OrdinaryDiffEq
-    u = current state
-    pars = model parameters in form (R0, γ_inv)
-    t = dummy variable for the current time
+### Arguments: 
+    - du: required for inplace calculations when using OrdinaryDiffEq
+    - u: current state
+    - pars: model parameters in form (R0, γ_inv)
+    - t: dummy variable for the current time
     
-Outputs: 
-    None
+### Outputs: 
+    - None
 """
 function sir_deterministic!(du, u, pars, t)
     R0, γ_inv = pars
@@ -96,12 +96,12 @@ end
     
 Computes the LST using our method and inverts it. 
 
-Arguments: 
-    pars = (R0, γ_inv)
-    Z0 = initial condition for the SIR model
+### Arguments: 
+    - pars: (R0, γ_inv)
+    - Z0: initial condition for the SIR model
     
-Outputs: 
-    W_lst = a function that computes the LST of W
+### Outputs: 
+    - W_lst: a function that computes the LST of W
 """
 function compute_W_lst(pars, Z0)
     R0, γ_inv = pars
@@ -145,13 +145,13 @@ end
     
 Computes the LST using our method and inverts it. 
 
-Arguments: 
-    I0 = initial condition for the SIR BP model
-    pars = (R0, γ_inv)
-    W_lst = the lst for W 
+### Arguments: 
+    - I0: initial condition for the SIR BP model
+    - pars: (R0, γ_inv)
+    - W_lst: the lst for W 
     
-Outputs: 
-    W_cdf = a function that computes the CDF of W
+### Outputs: 
+    - W_cdf: a function that computes the CDF of W
 """
 function compute_W_distribution(I0, pars, W_lst)
     R0, γ_inv = pars
@@ -168,12 +168,12 @@ end
 """
     SIR_lst_exact 
     
-Arguments: 
-    θ = the input for the LST 
-    pars = parameters in form (R0, γ_inv)
+### Arguments: 
+    - θ: the input for the LST 
+    - pars: parameters in form (R0, γ_inv)
 
-Outputs:
-    The exact value of the LST for W
+### Outputs:
+    - The exact value of the LST for W
 """
 function SIR_lst_exact(θ, pars)
     R0, γ_inv = pars
@@ -188,12 +188,12 @@ end
 """
     SIR_cdf_exact 
     
-Arguments: 
-    w = the input for the CDF
-    pars = parameters in form (R0, γ_inv)
+### Arguments: 
+    - w: the input for the CDF
+    - pars: parameters in form (R0, γ_inv)
 
-Outputs:
-    The exact value of the CDF for W
+### Outputs:
+    - The exact value of the CDF for W
 """
 function SIR_cdf_exact(w, pars)
     R0, γ_inv = pars

@@ -4,13 +4,13 @@
 Uses the LST for the CDF of W. This adds the point mass in 
 at x = 0. 
 
-Arguments: 
-    x = value to evaluate cdf at 
-    W_cdf = function that computes cdf values of W 
-    q_star = ultimate extinction probability 
+### Arguments: 
+    - x: value to evaluate cdf at 
+    - W_cdf: function that computes cdf values of W 
+    - q_star: ultimate extinction probability 
     
-Outputs: 
-    CDF value of w
+### Outputs: 
+    - CDF value of w
 """
 function W_cdf_approx(x, W_cdf, q_star)
     if x == 0.0
@@ -25,12 +25,12 @@ end
 
 Numerically differentiates cdf values in y using step size h. 
 
-Arguments: 
-    y = cdf values 
-    h = step size for differentiation 
+### Arguments: 
+    - y: cdf values 
+    - h: step size for differentiation 
         
-Outputs: 
-    pdf_vals = the values of the pdf
+### Outputs: 
+    - pdf_vals: the values of the pdf
 """
 function pdf_from_cdf(y, h)
     pdf_vals = similar(y)
@@ -66,12 +66,12 @@ end
 
 Evaluates the cdf at a range of values in a vector x. 
 
-Arguments: 
-    cdf = cdf for a random variable
-    x = points to evaluate the cdf at 
+### Arguments: 
+    - cdf: cdf for a random variable
+    - x: points to evaluate the cdf at 
     
-Outputs: 
-    A vector of CDF values (adjusted to ensure CDF <= 1) which deals with numerical issues.
+### Outputs: 
+    - A vector of CDF values (adjusted to ensure CDF <= 1) which deals with numerical issues.
 """
 function eval_cdf(cdf, x)
     # This truncates the results dealing with errors in the numerical approximation
