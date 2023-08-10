@@ -26,7 +26,7 @@ end
     
 Calculates the squared loss function (normalised) to be optimised.
     
-### ### Arguments: 
+### Arguments: 
     - pars: the parameters (a, d, p) of the GG 
     - moments: the vector of moments
     - q: the extinction probability
@@ -183,7 +183,7 @@ end
     
 Minimises sum of moments - (analytical moments).
 
-Arguments:
+### Arguments:
     - moments: an array of shape (5, number types) with the moments estimated using the methods 
                from section 3.3 of the paper
     - q1: vector of extinction probabilities starting with an individual of type i
@@ -218,6 +218,77 @@ function minimise_loss(moments, q1)
         ∇l = (g, x) -> ∇loss_func!(g, x, moments[:, i], q1[i])
         sol = Optim.optimize(l, ∇l, lower_bd, upper_bd, x0, Fminbox(inner_optimizer))
         pars[i] = sol.minimizer
+    end
+
+    return pars
+end
+
+"""
+    log_loss_func(pars, moments, q; num_moments_loss = 5)
+    
+Calculates the squared loss function (normalised) to be optimised.
+    
+### Arguments: 
+    - pars: the parameters (a, d, p) of the GG 
+    - moments: the vector of moments
+    - q: the extinction probability
+    - num_moments_loss: (default = 5) the number of moments
+    
+### Outputs:
+    - loss: the value of the loss function for a particular moment
+"""
+function log_loss_func(pars, moments, q; num_moments_loss = 5)
+    x, y, z = pars
+
+    a = exp(x)
+    d = exp(y)
+    p = exp(z)
+
+    loss = 0.0
+
+    for i in 1:num_moments_loss
+        μ_n = moments[i] / (1 - q)
+        pred = moments_gengamma(i, a, d, p)
+        η = round(μ_n; sigdigits = 1)
+        loss += (pred - μ_n)^2 / η
+    end
+
+    return log(loss)
+end
+
+"""
+    minimise_log_loss(moments, q1; num_moments_loss = 5, iterations = 10^5)
+    
+Minimises sum of moments - (analytical moments). We optimise in log-space to preserve pars > 0.
+
+### Arguments:
+    - moments: an array of shape (5, number types) with the moments estimated using the methods 
+               from section 3.3 of the paper
+    - q1: vector of extinction probabilities starting with an individual of type i
+    - num_moments_loss: (default = 5) number of moments to use in the expansion. Setting a 
+                        default here lets us calculate more moments for other methods. 
+    - iterations: (default = 10^5) max number of iterations to run in the optimisation.
+    
+### Outputs: 
+    - pars: an array of parameters with length number of types corresponding to each Wi
+"""
+function minimise_log_loss(moments, q1)
+    # get the number of loss functions to construct
+    num_init_conds = size(moments, 2)
+
+    pars = [zeros(Float64, 3) for _ in 1:num_init_conds]
+
+    # Initial guess is uninformative and reflects a boring distribution but is not (a, d, p) = (1, 1, 1)
+    # which can break gradients
+    x0 = zeros(Float64, 3)
+
+    for i in eachindex(pars)
+        l = x -> log_loss_func(x, moments[:, i], q1[i])
+        # Use automatic differentiation to get the gradient and hessian of loss function
+        sol = Optim.optimize(l, x0; autodiff = :forward)
+
+        # Transform parameters out of log-space
+        pars[i] = exp.(sol.minimizer)
     end
 
     return pars
