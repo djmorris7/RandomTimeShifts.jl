@@ -224,61 +224,6 @@ function minimise_loss(moments, q1)
 end
 
 """
-    ∇log_loss_func!(g, pars, moments, q; num_moments_loss = 5)
-    
-Calculates the gradient of the log loss function (normalised) to be optimised.
-    
-### Arguments: 
-    - g: the gradient which is updated inplace
-    - pars: the parameters (a, d, p) of the GG 
-    - moments: the vector of moments
-    - q: the extinction probability
-    - num_moments_loss: (default = 5) the number of moments
-    
-### Outputs:
-    - nothing, g is updated in place
-"""
-function ∇log_loss_func!(g, pars, moments, q; num_moments_loss = 5)
-    x, y, z = pars
-
-    a = exp(x)
-    d = exp(y)
-    p = exp(z)
-
-    g .= 0.0
-
-    for i in 1:num_moments_loss
-        u = (exp(y) + i) / exp(z)
-        v = exp(y) / exp(z)
-
-        ∂uy = exp(y) / exp(z)
-        ∂uz = -(exp(y) + i) / exp(z)
-        ∂vy = exp(y) / exp(z)
-        ∂vz = -exp(y) / exp(z)
-
-        a0 = exp(i * x) * gamma(u) / gamma(v)
-
-        ∂x = i * a0
-        ∂y = a0 * (polygamma(0, u) * ∂uy - polygamma(0, v) * ∂vy)
-        ∂z = a0 * (polygamma(0, u) * ∂uz - polygamma(0, v) * ∂vz)
-
-        μ_n = moments[i] / (1 - q)
-        pred = moments_gengamma(i, a, d, p)
-        η = round(μ_n; sigdigits = 1)
-        c = 2 / η * (pred - μ_n)
-
-        g[1] += c * ∂x
-        g[2] += c * ∂y
-        g[3] += c * ∂z
-    end
-
-    # working in log space so renormalise
-    g .= g ./ exp(log_loss_func_log(pars, moments, q))
-
-    return nothing
-end
-
-"""
     log_loss_func(pars, moments, q; num_moments_loss = 5)
     
 Calculates the squared loss function (normalised) to be optimised.
@@ -314,7 +259,7 @@ end
 """
     minimise_log_loss(moments, q1; num_moments_loss = 5, iterations = 10^5)
     
-Minimises sum of moments - (analytical moments).
+Minimises sum of moments - (analytical moments). We optimise in log-space to preserve pars > 0.
 
 ### Arguments:
     - moments: an array of shape (5, number types) with the moments estimated using the methods 
@@ -333,14 +278,17 @@ function minimise_log_loss(moments, q1)
 
     pars = [zeros(Float64, 3) for _ in 1:num_init_conds]
 
-    # Initial guess is uninformative and reflects a boring distribution
+    # Initial guess is uninformative and reflects a boring distribution but is not (a, d, p) = (1, 1, 1)
+    # which can break gradients
     x0 = zeros(Float64, 3)
 
     for i in eachindex(pars)
         l = x -> log_loss_func(x, moments[:, i], q1[i])
-        ∇l = (g, x) -> ∇log_loss_func!(g, x, moments[:, i], q1[i])
-        sol = Optim.optimize(l, ∇l, x0)
-        pars[i] = sol.minimizer
+        # Use automatic differentiation to get the gradient and hessian of loss function
+        sol = Optim.optimize(l, x0; autodiff = :forward)
+
+        # Transform parameters out of log-space
+        pars[i] = exp.(sol.minimizer)
     end
 
     return pars

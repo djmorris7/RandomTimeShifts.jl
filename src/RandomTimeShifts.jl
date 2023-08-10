@@ -21,6 +21,6 @@ include("./LST_approximation.jl")
 export moment_coeffs, construct_lst, calculate_BP_contributions, F_offspring_ode
 
 include("./moment_matching.jl")
-export sample_generalized_gamma, sample_W, minimise_loss
+export sample_generalized_gamma, sample_W, minimise_loss, minimise_log_loss
 
 end
