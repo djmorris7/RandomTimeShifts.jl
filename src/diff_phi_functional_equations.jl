@@ -6,7 +6,7 @@ f_i(s) = c / a_i + b / a_i * s_j
 Default assumes that b = a_i and in cases where f_i(s) = s_j, this is required.
 Returns coefficients of the generating functions and the constant term (0 in this case).
 
-# Arguments:
+# Arguments
     - lifetimes: the lifetime of an individual
     - n: which derivative we're calculating.
     - λ: the growth rate
@@ -14,7 +14,7 @@ Returns coefficients of the generating functions and the constant term (0 in thi
     - num_phis: the number of phis in the model
     - b: (default = lifetimes) the birth rate of type j individuals
 
-# Outputs:
+# Outputs
     - coeffs: the coefficients from differentiating the pgf
     - C: the constant vector from differentiating the pgf
 """
@@ -33,14 +33,14 @@ f(s) = c / a + b / a s^2
 in the special case of a 1D model.
 Returns coefficients of the generating functions and the constant term.
 
-# Arguments:
+# Arguments
     - b: the birth rate of type j individuals
     - lifetimes: the lifetime of an individual
     - n: the derivative number to calculate
     - λ: the growth rate
     - phis: a vector of the previous phis
 
-# Outputs:
+# Outputs
     - coeff: the coefficient from differentiating the pgf
     - C: the constant from differentiating the pgf
 """
@@ -66,7 +66,7 @@ specifying the indices of the pgfs phi_idxs = [i, j, k].
 
 Returns coefficients of the generating functions and the constant term.
 
-# Arguments:
+# Arguments
     - b: the splitting rate of type j individuals
     - lifetimes: lifetime of an individual
     - n: the derivative number to calculate
@@ -74,7 +74,7 @@ Returns coefficients of the generating functions and the constant term.
     - phis: an array of shape (n-1, number of types) with the previous moments
     - phi_idxs: (default is just to provide the form needed) the indices appearing in the pgf
 
-# Outputs:
+# Outputs
     - coeffs: the coefficients from differentiating the pgf
     - C: the constant vector from differentiating the pgf
 """
@@ -112,11 +112,11 @@ end
 
 Differentiates the LHS of the functional equation returning the coefficient (always 1.0).
 
-# Arguments:
+# Arguments
     - phi_idx: the index of the pgf
     - num_phis: (default = 1) how many trivial initial conditions the model has
 
-# Outputs:
+# Outputs
     - coeffs: the coeffs (works for both 1D and ND)
 """
 function lhs_coeffs(phi_idx; num_phis = 1)
@@ -134,12 +134,12 @@ end
 
 Calculates the moments of a ND process using the user specified coefficient functions.
 
-# Arguments:
+# Arguments
     - coeff_func!: function which differentiates all pgf's in place
     - num_moments: number of moments to calculate
     - Ω: the mean matrix shape should be (number types, number types)
 
-# Outputs:
+# Outputs
     - moments: a vector of shape (num_moments, number types) with the moments
                where column i is the moments for W_i
 """
@@ -167,11 +167,11 @@ end
 
 Calculates the moments of the functional equation for the 1D user specified diff! function.
 
-# Arguments:
+# Arguments
     - diff: function which calculates the moments in a 1D case
     - num_moments: (default = 31) how many moments to calculate.
 
-# Outputs:
+# Outputs
     - moments: vector of moments for W
 """
 function calculate_moments_1D(diff; num_moments = 31)

@@ -26,13 +26,13 @@ end
 
 Calculates the squared loss function (normalised) to be optimised.
 
-# Arguments:
+# Arguments
     - pars: the parameters (a, d, p) of the GG
     - moments: the vector of moments
     - q: the extinction probability
     - num_moments_loss: (default = 5) the number of moments
 
-# Outputs:
+# Outputs
     - loss: the value of the loss function for a particular moment
 """
 function loss_func(pars, moments, q; num_moments_loss = 5)
@@ -52,14 +52,14 @@ end
 
 Calculates the gradient of the loss function (normalised) to be optimised.
 
-# Arguments:
+# Arguments
     - g: the gradient which is updated inplace
     - pars: the parameters (a, d, p) of the GG
     - moments: the vector of moments
     - q: the extinction probability
     - num_moments_loss: (default = 5) the number of moments
 
-# Outputs:
+# Outputs
     - nothing, g is updated in place
 """
 function ∇loss_func!(g, pars, moments, q; num_moments_loss = 5)
@@ -101,10 +101,10 @@ end
 Sample a generalised gamma random variable with parameters (a, d, p) using
 the CDF method.
 
-# Arguments:
+# Arguments
     - pars: parameters in form (a, d, p)
 
-# Outputs:
+# Outputs
     - x: a sample from GG(a, d, p)
 """
 function sample_generalized_gamma(pars)
@@ -122,14 +122,14 @@ end
 
 Sample realisations of W given pars, extinction probabilities.
 
-# Arguments:
+# Arguments
     - n: the number of samples to draw
     - pars: list of pars (a, d, p) for each of the Wi
     - q1: vector of extinction probabilities for each Wi
     - Z0: the initial conditions for the branching process
     - no_extinction: (default = true) whether to condition on non-extinction
 
-# Outputs:
+# Outputs
     - w: vector of samples of w
 """
 function sample_W(n, pars, q1, Z0; no_extinction = true)
@@ -157,12 +157,12 @@ end
 
 Sample a single realisation of W given pars, extinction probabilities.
 
-# Arguments:
+# Arguments
     - pars: list of pars (a, d, p) for each of the Wi
     - q1: vector of extinction probabilities for each Wi
     - Z0: the initial conditions for the branching process
 
-# Outputs:
+# Outputs
     - w: samples of w
 """
 function sample_W(pars, q1, Z0)
@@ -187,7 +187,7 @@ end
 
 Minimises sum of moments - (analytical moments).
 
-# Arguments:
+# Arguments
     - moments: an array of shape (5, number types) with the moments estimated using the methods
                from section 3.3 of the paper
     - q1: vector of extinction probabilities starting with an individual of type i
@@ -195,7 +195,7 @@ Minimises sum of moments - (analytical moments).
                         default here lets us calculate more moments for other methods.
     - iterations: (default = 10^5) max number of iterations to run in the optimisation.
 
-# Outputs:
+# Outputs
     - pars: an array of parameters with length number of types corresponding to each Wi
 """
 function minimise_loss(moments, q1)
@@ -232,13 +232,13 @@ end
 
 Calculates the squared loss function (normalised) to be optimised.
 
-# Arguments:
+# Arguments
     - pars: the parameters (a, d, p) of the GG
     - moments: the vector of moments
     - q: the extinction probability
     - num_moments_loss: (default = 5) the number of moments
 
-# Outputs:
+# Outputs
     - loss: the value of the loss function for a particular moment
 """
 function log_loss_func(pars, moments, q; num_moments_loss = 5)
@@ -265,7 +265,7 @@ end
 
 Minimises sum of moments - (analytical moments). We optimise in log-space to preserve pars > 0.
 
-# Arguments:
+# Arguments
     - moments: an array of shape (5, number types) with the moments estimated using the methods
                from section 3.3 of the paper
     - q1: vector of extinction probabilities starting with an individual of type i
@@ -273,7 +273,7 @@ Minimises sum of moments - (analytical moments). We optimise in log-space to pre
                         default here lets us calculate more moments for other methods.
     - iterations: (default = 10^5) max number of iterations to run in the optimisation.
 
-# Outputs:
+# Outputs
     - pars: an array of parameters with length number of types corresponding to each Wi
 """
 function minimise_log_loss(moments, q1)
