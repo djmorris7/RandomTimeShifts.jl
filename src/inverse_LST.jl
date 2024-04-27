@@ -5,11 +5,11 @@ This loads the pre-computed coefficients from http://inverselaplace.org/. These
 have been pre-calculated up to > 1000 and can be appropriately applied for a
 range of problems.
 
-### Arguments:
+# Arguments:
     - N_f_evals: the maximum number of function evals, this is set to 21 based on the paper
                  that accompanies this method
 
-### Outputs:
+# Outputs:
     - The constants η and β needed for the LST inversion
 """
 function load_cme_hyper_params(N_f_evals)
@@ -36,13 +36,13 @@ Calculates the inverse laplace transform for the function f at the point(s) in x
 supports the concentrated-matrix-exponential method
 which is expressed in the Abatte-Whitt framework.
 
-### Arguments:
+# Arguments:
     - f: a function for the lst of W
     - x: the point to evaluate the lst at
     - η: constants required for the function
     - β: constants required for the function
 
-### Outputs:
+# Outputs:
     - res: the cdf value
 """
 function invert_lst(f, x, η, β)
@@ -57,16 +57,16 @@ end
 
 Constructs the LST of the CDF of W given the LST of the PDF.
 
-### Arguments:
+# Arguments:
     - lst_w: function for computing the LST of W
     - q_star: the ultimate extinction probability
     - N_fevals: (default = 21) this is set at the default from the CME paper
                 but can be adjusted.
 
-### Outputs:
+# Outputs:
     - W_cdf: the CDF of W
 """
-function construct_W_cdf_ilst(lst_w, q_star; N_fevals=21)
+function construct_W_cdf_ilst(lst_w, q_star; N_fevals = 21)
     η, β = load_cme_hyper_params(N_fevals)
     function W_cdf(x)
         if x == 0

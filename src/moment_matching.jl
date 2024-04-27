@@ -1,16 +1,16 @@
 """
-    moments_gengamma(n, a, d, p)  
-    
-Calculates the analytical moments for a generalised Gamma distribution with 
-scale parameter a, and two shape parameters d, p. 
+    moments_gengamma(n, a, d, p)
 
-### Arguments
-    - n: the moment number 
+Calculates the analytical moments for a generalised Gamma distribution with
+scale parameter a, and two shape parameters d, p.
+
+# Arguments
+    - n: the moment number
     - a: scale parameter
     - d: shape parameter 1
     - p: shape parameter 2
-    
-### Outputs
+
+# Outputs
     - The moment
 """
 function moments_gengamma(n, a, d, p)
@@ -23,16 +23,16 @@ end
 
 """
     loss_func(x, moments, q; num_moments_loss = 5)
-    
+
 Calculates the squared loss function (normalised) to be optimised.
-    
-### Arguments: 
-    - pars: the parameters (a, d, p) of the GG 
+
+# Arguments:
+    - pars: the parameters (a, d, p) of the GG
     - moments: the vector of moments
     - q: the extinction probability
     - num_moments_loss: (default = 5) the number of moments
-    
-### Outputs: 
+
+# Outputs:
     - loss: the value of the loss function for a particular moment
 """
 function loss_func(pars, moments, q; num_moments_loss = 5)
@@ -49,17 +49,17 @@ end
 
 """
     ∇loss_func!(g, x, moments, q; num_moments_loss = 5)
-    
+
 Calculates the gradient of the loss function (normalised) to be optimised.
-    
-### Arguments: 
+
+# Arguments:
     - g: the gradient which is updated inplace
-    - pars: the parameters (a, d, p) of the GG 
+    - pars: the parameters (a, d, p) of the GG
     - moments: the vector of moments
     - q: the extinction probability
     - num_moments_loss: (default = 5) the number of moments
-    
-### Outputs: 
+
+# Outputs:
     - nothing, g is updated in place
 """
 function ∇loss_func!(g, pars, moments, q; num_moments_loss = 5)
@@ -69,15 +69,19 @@ function ∇loss_func!(g, pars, moments, q; num_moments_loss = 5)
 
     for i in 1:num_moments_loss
         ∂a = i * a^(i - 1) * gamma((d + i) / p) / gamma(d / p)
-        ∂d = a^i *
-             (gamma((d + i) / p) * polygamma(0, (d + i) / p) * (1 / p) * gamma(d / p) -
-              gamma((d + i) / p) * gamma(d / p) * polygamma(0, d / p) * (1 / p)) /
-             gamma(d / p)^2
-        ∂p = a^i *
-             (gamma((d + i) / p) * polygamma(0, (d + i) / p) * (-(d + i) / p^2) *
-              gamma(d / p) -
-              gamma((d + i) / p) * gamma(d / p) * polygamma(0, d / p) * (-d / p^2)) /
-             gamma(d / p)^2
+        ∂d =
+            a^i * (
+                gamma((d + i) / p) * polygamma(0, (d + i) / p) * (1 / p) * gamma(d / p) -
+                gamma((d + i) / p) * gamma(d / p) * polygamma(0, d / p) * (1 / p)
+            ) / gamma(d / p)^2
+        ∂p =
+            a^i * (
+                gamma((d + i) / p) *
+                polygamma(0, (d + i) / p) *
+                (-(d + i) / p^2) *
+                gamma(d / p) -
+                gamma((d + i) / p) * gamma(d / p) * polygamma(0, d / p) * (-d / p^2)
+            ) / gamma(d / p)^2
 
         y1 = moments[i] / (1 - q)
         y2 = moments_gengamma(i, a, d, p)
@@ -94,13 +98,13 @@ end
 """
     sample_generalized_gamma(pars)
 
-Sample a generalised gamma random variable with parameters (a, d, p) using 
-the CDF method. 
+Sample a generalised gamma random variable with parameters (a, d, p) using
+the CDF method.
 
-### Arguments: 
+# Arguments:
     - pars: parameters in form (a, d, p)
-    
-### Outputs: 
+
+# Outputs:
     - x: a sample from GG(a, d, p)
 """
 function sample_generalized_gamma(pars)
@@ -116,16 +120,16 @@ end
 """
     sample_W(n, pars, q1, Z0; no_extinction = true)
 
-Sample realisations of W given pars, extinction probabilities. 
+Sample realisations of W given pars, extinction probabilities.
 
-### Arguments: 
-    - n: the number of samples to draw 
+# Arguments:
+    - n: the number of samples to draw
     - pars: list of pars (a, d, p) for each of the Wi
     - q1: vector of extinction probabilities for each Wi
     - Z0: the initial conditions for the branching process
     - no_extinction: (default = true) whether to condition on non-extinction
-    
-### Outputs: 
+
+# Outputs:
     - w: vector of samples of w
 """
 function sample_W(n, pars, q1, Z0; no_extinction = true)
@@ -151,14 +155,14 @@ end
 """
     sample_W(pars, q1, Z0)
 
-Sample a single realisation of W given pars, extinction probabilities. 
+Sample a single realisation of W given pars, extinction probabilities.
 
-### Arguments: 
+# Arguments:
     - pars: list of pars (a, d, p) for each of the Wi
     - q1: vector of extinction probabilities for each Wi
     - Z0: the initial conditions for the branching process
-    
-### Outputs: 
+
+# Outputs:
     - w: samples of w
 """
 function sample_W(pars, q1, Z0)
@@ -180,18 +184,18 @@ end
 
 """
     minimise_loss(moments, q1; num_moments_loss = 5, iterations = 10^5)
-    
+
 Minimises sum of moments - (analytical moments).
 
-### Arguments:
-    - moments: an array of shape (5, number types) with the moments estimated using the methods 
+# Arguments:
+    - moments: an array of shape (5, number types) with the moments estimated using the methods
                from section 3.3 of the paper
     - q1: vector of extinction probabilities starting with an individual of type i
-    - num_moments_loss: (default = 5) number of moments to use in the expansion. Setting a 
-                        default here lets us calculate more moments for other methods. 
+    - num_moments_loss: (default = 5) number of moments to use in the expansion. Setting a
+                        default here lets us calculate more moments for other methods.
     - iterations: (default = 10^5) max number of iterations to run in the optimisation.
-    
-### Outputs: 
+
+# Outputs:
     - pars: an array of parameters with length number of types corresponding to each Wi
 """
 function minimise_loss(moments, q1)
@@ -199,13 +203,13 @@ function minimise_loss(moments, q1)
     num_init_conds = size(moments, 2)
 
     pars = [zeros(Float64, 3) for _ in 1:num_init_conds]
-    # Wide bounds on the parameters 
+    # Wide bounds on the parameters
     lower_bd = [0.0, 0.0, 0.0]
     upper_bd = [50.0, 50.0, 50.0]
     # Initial guess is uninformative and reflects a boring distribution
     x0 = [1.0, 1.0, 1.0]
 
-    # Wide bounds on the parameters 
+    # Wide bounds on the parameters
     lower_bd = 1e-4 * ones(3)
     upper_bd = 50 * ones(3)
     # Initial guess is uninformative and reflects a boring distribution
@@ -225,16 +229,16 @@ end
 
 """
     log_loss_func(pars, moments, q; num_moments_loss = 5)
-    
+
 Calculates the squared loss function (normalised) to be optimised.
-    
-### Arguments: 
-    - pars: the parameters (a, d, p) of the GG 
+
+# Arguments:
+    - pars: the parameters (a, d, p) of the GG
     - moments: the vector of moments
     - q: the extinction probability
     - num_moments_loss: (default = 5) the number of moments
-    
-### Outputs:
+
+# Outputs:
     - loss: the value of the loss function for a particular moment
 """
 function log_loss_func(pars, moments, q; num_moments_loss = 5)
@@ -258,18 +262,18 @@ end
 
 """
     minimise_log_loss(moments, q1; num_moments_loss = 5, iterations = 10^5)
-    
+
 Minimises sum of moments - (analytical moments). We optimise in log-space to preserve pars > 0.
 
-### Arguments:
-    - moments: an array of shape (5, number types) with the moments estimated using the methods 
+# Arguments:
+    - moments: an array of shape (5, number types) with the moments estimated using the methods
                from section 3.3 of the paper
     - q1: vector of extinction probabilities starting with an individual of type i
-    - num_moments_loss: (default = 5) number of moments to use in the expansion. Setting a 
-                        default here lets us calculate more moments for other methods. 
+    - num_moments_loss: (default = 5) number of moments to use in the expansion. Setting a
+                        default here lets us calculate more moments for other methods.
     - iterations: (default = 10^5) max number of iterations to run in the optimisation.
-    
-### Outputs: 
+
+# Outputs:
     - pars: an array of parameters with length number of types corresponding to each Wi
 """
 function minimise_log_loss(moments, q1)
