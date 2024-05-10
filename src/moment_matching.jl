@@ -297,3 +297,92 @@ function minimise_log_loss(moments, q1)
 
     return pars
 end
+
+"""
+    generate_partitions(k::Int, m::Int)
+
+Generates all partitions of k into m parts.
+
+# Arguments
+    - k: the number to partition
+    - m: the number of parts
+
+# Outputs
+    - partitions: a vector of vectors of integers
+"""
+function generate_partitions(k::Int, m::Int)
+    partitions = Vector{Vector{Int}}()
+    generate_partitions_recursive(partitions, [], k, m)
+    return partitions
+end
+
+"""
+    generate_partitions_recursive(
+        partitions, current_partition, remaining_sum, remaining_integers
+    )
+
+Generates all partitions of k into m parts.
+
+# Arguments
+    - partitions: the vector of partitions
+    - current_partition: the current partition
+    - remaining_sum: the remaining sum
+    - remaining_integers: the remaining integers
+
+# Outputs
+    - partitions: a vector of vectors of integers
+"""
+function generate_partitions_recursive(
+    partitions, current_partition, remaining_sum, remaining_integers
+)
+    if remaining_integers == 0
+        if remaining_sum == 0
+            push!(partitions, copy(current_partition))
+        end
+        return nothing
+    end
+    for x in 0:remaining_sum
+        new_partition = copy(current_partition)
+        push!(new_partition, x)
+        generate_partitions_recursive(
+            partitions, new_partition, remaining_sum - x, remaining_integers - 1
+        )
+    end
+end
+
+"""
+    compute_W_moments(moments; num_moments = 5)
+
+Computes the moments of W using the moments of the individual types.
+
+# Arguments
+    - moments: the moments of the individual types
+    - num_moments: (default = 5) the number of moments to compute
+
+# Outputs
+    - W_moments: the moments of W
+"""
+function compute_W_moments(moments; num_moments = 5)
+    m = size(moments, 2)
+    for k in 1:num_moments
+        A = generate_partitions(k, m)
+        for l in A
+            C = multinomial(l...)
+            internal_term = 1.0
+            j = 1
+            for i in 1:m
+                if l[i] > 0
+                    internal_term *= moments[l[i], j]
+                else
+                    internal_term *= 1.0
+                end
+                if j >= Z0_bp_cumsum[i]
+                    j += 1
+                end
+            end
+            W_moments[k] += C * internal_term
+        end
+    end
+
+    return W_moments
+end
