@@ -388,7 +388,7 @@ function compute_W_moments(moments, Z0_bp, q_star; num_moments = 5)
     return W_moments
 end
 
-function loss_func(pars, W_moments; num_moments_loss = 5)
+function loss_func(pars, W_moments)
     a, d, p = pars
 
     loss = 0.0
