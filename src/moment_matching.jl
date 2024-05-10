@@ -402,7 +402,7 @@ function loss_func(pars, W_moments)
     return loss
 end
 
-function minimise_log_loss(W_moments)
+function minimise_loss(W_moments)
     pars = zeros(Float64, 3)
 
     # Initial guess is uninformative and reflects a boring distribution but is not (a, d, p) = (1, 1, 1)
