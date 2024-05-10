@@ -363,6 +363,7 @@ Computes the moments of W using the moments of the individual types.
     - W_moments: the moments of W
 """
 function compute_W_moments(moments, Z0_bp, q_star; num_moments = 5)
+    W_moments = zeros(Float64, num_moments)
     Z0_bp_cumsum = cumsum(Z0_bp)
     m = size(moments, 2)
     for k in 1:num_moments
@@ -384,6 +385,8 @@ function compute_W_moments(moments, Z0_bp, q_star; num_moments = 5)
             W_moments[k] += C * internal_term
         end
     end
+
+    W_moments = W_moments / q_star
 
     return W_moments
 end
