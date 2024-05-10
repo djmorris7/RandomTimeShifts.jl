@@ -362,7 +362,8 @@ Computes the moments of W using the moments of the individual types.
 # Outputs
     - W_moments: the moments of W
 """
-function compute_W_moments(moments; num_moments = 5)
+function compute_W_moments(moments, Z0_bp, q_star; num_moments = 5)
+    Z0_bp_cumsum = cumsum(Z0_bp)
     m = size(moments, 2)
     for k in 1:num_moments
         A = generate_partitions(k, m)
@@ -385,4 +386,32 @@ function compute_W_moments(moments; num_moments = 5)
     end
 
     return W_moments
+end
+
+function loss_func(pars, W_moments; num_moments_loss = 5)
+    a, d, p = pars
+
+    loss = 0.0
+
+    for (i, W_i) in enumerate(W_moments)
+        y2 = moments_gengamma(i, a, d, p)
+        η = round(W_i; sigdigits = 1)
+        loss += ((y2 - W_i))^2 / η
+    end
+
+    return loss
+end
+
+function minimise_log_loss(W_moments)
+    pars = zeros(Float64, 3)
+
+    # Initial guess is uninformative and reflects a boring distribution but is not (a, d, p) = (1, 1, 1)
+    # which can break gradients
+    x0 = ones(Float64, 3)
+
+    l = x -> loss_func(x, W_moments)
+    sol = Optim.optimize(l, x0; autodiff = :forward)
+    pars = sol.minimizer
+
+    return pars
 end
