@@ -394,7 +394,8 @@ function compute_W_moments(moments, Z0_bp, q_star; num_moments = 5)
                 else
                     internal_term *= 1.0
                 end
-                if j >= Z0_bp_cumsum[i]
+                # Move to the next type if we have exhausted the current type
+                if i >= Z0_bp_cumsum[j]
                     j += 1
                 end
             end
