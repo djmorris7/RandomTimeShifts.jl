@@ -402,7 +402,7 @@ function compute_W_moments(moments, Z0_bp, q_star; num_moments = 5)
         end
     end
 
-    W_moments = W_moments / q_star
+    W_moments = W_moments / (1 - q_star)
 
     return W_moments
 end
