@@ -427,9 +427,11 @@ function minimise_loss(W_moments)
     # Initial guess is uninformative and reflects a boring distribution but is not (a, d, p) = (1, 1, 1)
     # which can break gradients
     x0 = ones(Float64, 3)
+    lower_bd = 1e-4 * ones(3)
+    upper_bd = 50 * ones(3)
 
     l = x -> loss_func(x, W_moments)
-    sol = Optim.optimize(l, x0; autodiff = :forward)
+    sol = Optim.optimize(l, lower_bd, upper_bd, x0; autodiff = :forward)
     pars = sol.minimizer
 
     return pars
