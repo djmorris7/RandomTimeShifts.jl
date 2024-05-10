@@ -183,6 +183,22 @@ function sample_W(pars, q1, Z0)
 end
 
 """
+    sample_W(pars)
+
+Sample a single realisation of W given pars, extinction probabilities.
+
+# Arguments
+    - pars: list of pars (a, d, p) for each of the Wi
+
+# Outputs
+    - w: samples of w
+"""
+function sample_W(pars)
+    w = sample_generalized_gamma(pars)
+    return w
+end
+
+"""
     minimise_loss(moments, q1; num_moments_loss = 5, iterations = 10^5)
 
 Minimises sum of moments - (analytical moments).
