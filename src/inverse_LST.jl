@@ -66,17 +66,34 @@ Constructs the LST of the CDF of W given the LST of the PDF.
 # Outputs
     - W_cdf: the CDF of W
 """
-function construct_W_cdf_ilst(lst_w, q_star; N_fevals = 21)
+function construct_W_cdf_ilst(lst_w, q_star; N_fevals = 21, ccdf = false)
     η, β = load_cme_hyper_params(N_fevals)
     function W_cdf(x)
         if x == 0
             return q_star
-        else
-            # Invert the LST (1 - ϕ(θ)) / θ to get the CCDF then take it from 1.
+        elseif !ccdf
             return invert_lst(s -> lst_w(s) / s, x, η, β)
             # return 1.0 - invert_lst(s -> (1 - lst_w(s)) / s, x, η, β)
+        else
+            # Invert the LST (1 - ϕ(θ)) / θ to get the CCDF then take it from 1.
+            return 1.0 - invert_lst(s -> (1 - lst_w(s)) / s, x, η, β)
         end
     end
 
     return W_cdf
 end
+
+# function construct_W_cdf_ilst(lst_w, q_star; N_fevals = 21)
+#     η, β = load_cme_hyper_params(N_fevals)
+#     function W_cdf(x)
+#         if x == 0
+#             return q_star
+#         else
+#             # Invert the LST (1 - ϕ(θ)) / θ to get the CCDF then take it from 1.
+#             return invert_lst(s -> lst_w(s) / s, x, η, β)
+#             # return 1.0 - invert_lst(s -> (1 - lst_w(s)) / s, x, η, β)
+#         end
+#     end
+
+#     return W_cdf
+# end
