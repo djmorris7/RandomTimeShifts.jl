@@ -21,6 +21,25 @@ function W_cdf_approx(x, W_cdf, q_star)
 end
 
 """
+    W_cdf_approx(x, W_cdf, q_star)
+
+Uses the LST for the CDF of W. This adds the point mass in
+at x = 0.
+
+# Arguments
+    - x: value to evaluate cdf at
+    - W_cdf: function that computes cdf values of W
+    - q_star: ultimate extinction probability
+
+# Outputs
+    - CDF value of w
+"""
+function W_star_pdf_approx(W_cdf, q_star)
+    W_star_pdf(w) = ForwardDiff.derivative(W_cdf, w) / (1 - q_star)
+    return W_star_pdf
+end
+
+"""
     pdf_from_cdf(y, h)
 
 Numerically differentiates cdf values in y using step size h.

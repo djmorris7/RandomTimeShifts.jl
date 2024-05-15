@@ -9,7 +9,8 @@ using Optim,
     LinearAlgebra,
     StaticArrays,
     JSON,
-    OrdinaryDiffEq
+    OrdinaryDiffEq,
+    ForwardDiff
 
 include("./diff_phi_functional_equations.jl")
 export diff_linear,
@@ -20,7 +21,7 @@ export diff_linear,
     calculate_moments_1D
 
 include("./numerically_approx_pdf_cdf.jl")
-export W_cdf_approx, pdf_from_cdf, eval_cdf
+export W_cdf_approx, pdf_from_cdf, eval_cdf, W_star_pdf_approx
 
 include("./inverse_LST.jl")
 export invert_lst, construct_W_cdf_ilst
