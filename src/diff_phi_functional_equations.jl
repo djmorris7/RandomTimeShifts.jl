@@ -257,7 +257,7 @@ Calculates the moments of the functional equation given the linear and quadratic
     - moments: a vector of shape (num_moments, number types) with the moments
                where column i is the moments for W_i
 """
-function calculate_moments_ND(Ω, αs, βs, lifetimes; num_moments = 5)
+function calculate_moments(Ω, αs, βs, lifetimes; num_moments = 5)
     # Number of types
     m = length(lifetimes)
 
