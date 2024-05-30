@@ -186,3 +186,91 @@ function calculate_moments_1D(diff; num_moments = 31)
 
     return moments
 end
+
+"""
+    diff_compute_moments(Ω, αs, βs, lifetimes; num_moments = 5)
+
+Calculates the moments of the functional equation given the linear and quadratic terms.
+
+# Arguments
+    - Ω: the mean matrix shape should be (number types, number types)
+    - αs: the linear terms, represented as a dictionary with the keys being the pgf indices
+          and the values being another dictionary for the [i, j] => α_ij that are non-zero
+    - βs: the quadratic terms, represented as a dictionary with the keys being the pgf indices
+          and the values being another dictionary for the [i, k, l] => β_ikl that are non-zero
+    - lifetimes: the lifetime of each individual
+    - num_moments: (default = 5) how many moments to calculate.
+
+# Outputs
+    - moments: a vector of shape (num_moments, number types) with the moments
+               where column i is the moments for W_i
+"""
+function calculate_moments_ND(Ω, αs, βs, lifetimes; num_moments = 5)
+    # Number of types
+    m = length(lifetimes)
+
+    # Get the identity matrix so we can use it to construct the basis vectors
+    I_mat = I(m)
+
+    λ, u_norm, v_norm = RandomTimeShifts.calculate_BP_contributions(Ω)
+
+    # Initialize the moments
+    moments = zeros(num_moments, m)
+    moments[1, :] .= u_norm
+    # Initialize the matrix and vector for the linear system
+    C = zeros(Float64, m, m)
+    d = zeros(Float64, m)
+
+    for n in 2:num_moments
+        # Some redundancy here in recalculting the matrix each step, but easier to extend and read
+        for i in 1:m
+            αs_i = αs[i]
+            βs_i = βs[i]
+
+            # Basis vector for the ith moment
+            C[i, :] .= I_mat[i, :]
+            # Subtract the contributions from the linear parts
+            if !isnothing(αs_i)
+                for (key, α_ij) in αs_i
+                    i, j = key
+                    α_ij_tilde = compute_tilde_constants(α_ij, lifetimes[i], n, λ)
+                    C[i, :] .-= α_ij_tilde * I_mat[j, :]
+                end
+            end
+            # Subtract the contributions from the quadratic parts
+            if !isnothing(βs_i)
+                for (key, β_ikl) in βs_i
+                    i, k, l = key
+                    β_ikl_tilde = compute_tilde_constants(β_ikl, lifetimes[i], n, λ)
+                    C[i, :] .-= β_ikl_tilde * (I_mat[k, :] + I_mat[l, :])
+                end
+
+                # Compute constant term (which is simply 0 if no quadratic terms)
+                d[i] = compute_d_n(βs_i, lifetimes[i], moments, n, λ)
+            end
+        end
+        # Solve and reset the system
+        moments[n, :] .= C \ d
+        C .= 0.0
+        d .= 0.0
+    end
+
+    return moments
+end
+
+function calculate_moments_ND(coeff_func!, num_moments, Ω)
+    n_phis = length(u_norm)
+    moments = zeros(num_moments, n_phis)
+    moments[1, :] .= u_norm
+
+    A = zeros(Float64, n_phis, n_phis)
+    b = zeros(Float64, n_phis)
+
+    for n in 2:num_moments
+        phis = moments[1:(n - 1), :]
+        coeff_func!(A, b, phis)
+        moments[n, :] .= A \ b
+    end
+
+    return moments
+end
