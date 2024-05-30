@@ -18,7 +18,8 @@ export diff_linear,
     diff_quadratic,
     lhs_coeffs,
     calculate_moments_ND,
-    calculate_moments_1D
+    calculate_moments_1D,
+    calculate_moments_generic
 
 include("./numerically_approx_pdf_cdf.jl")
 export W_cdf_approx, pdf_from_cdf, eval_cdf, W_star_pdf_approx
