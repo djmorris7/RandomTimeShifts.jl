@@ -188,6 +188,58 @@ function calculate_moments_1D(diff; num_moments = 31)
 end
 
 """
+    compute_tilde_constants(c, lifetime, n, λ)
+
+Computes the tilde constants for either the linear or quadratic rates in the functional equation.
+
+# Arguments
+    - c: a rate term (i.e. α_ij or β_ikl)
+    - lifetime: the lifetime of the individual
+    - n: the derivative number (i.e. the moment number)
+    - λ: the growth rate
+
+# Outputs
+    - c_tilde: the constant term in the quadratic form
+"""
+function compute_tilde_constants(c, lifetime, n, λ)
+    c_tilde = c / (lifetime + n * λ)
+
+    return c_tilde
+end
+
+"""
+    compute_d_n(βs_i, lifetime, prev_moments, n, λ)
+
+Computes the constant term in the quadratic form for the functional equation.
+
+# Arguments
+    - βs_i: the quadratic terms for the ith type, represented as a dictionary with the
+            keys being the pgf indices and the values being another dictionary for
+            the [i, k, l] => β_ikl that are non-zero
+    - lifetime: the lifetime of the individual
+    - prev_moments: the previous moments
+    - n: the derivative number (i.e. the moment number)
+    - λ: the growth rate
+
+# Outputs
+    - d_n: the constant term in the quadratic form
+"""
+function compute_d_n(βs_i, lifetime, prev_moments, n, λ)
+    d_n = 0.0
+    for (key, val) in βs_i
+        i, k, l = key
+        β_tilde = compute_tilde_constants(val, lifetime, n, λ)
+        d_n +=
+            β_tilde * sum(
+                binomial(n, r) * prev_moments[r, k] * prev_moments[n - r, l] for
+                r in 1:(n - 1)
+            )
+    end
+
+    return d_n
+end
+
+"""
     diff_compute_moments(Ω, αs, βs, lifetimes; num_moments = 5)
 
 Calculates the moments of the functional equation given the linear and quadratic terms.
