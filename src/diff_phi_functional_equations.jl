@@ -311,6 +311,7 @@ function calculate_moments(Ω, αs, βs, lifetimes; num_moments = 5)
 end
 
 function calculate_moments_ND(coeff_func!, num_moments, Ω)
+    λ1, u_norm, v_norm = RandomTimeShifts.calculate_BP_contributions(Ω)
     n_phis = length(u_norm)
     moments = zeros(num_moments, n_phis)
     moments[1, :] .= u_norm
