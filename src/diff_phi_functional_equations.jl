@@ -276,29 +276,27 @@ function calculate_moments_generic(Ω, αs, βs, lifetimes; num_moments = 5)
     for n in 2:num_moments
         # Some redundancy here in recalculting the matrix each step, but easier to extend and read
         for i in 1:m
-            αs_i = αs[i]
-            βs_i = βs[i]
-
             # Basis vector for the ith moment
             C[i, :] .= I_mat[i, :]
+
             # Subtract the contributions from the linear parts
-            if !isnothing(αs_i)
-                for (key, α_ij) in αs_i
+            if haskey(αs, i)
+                for (key, α_ij) in αs[i]
                     i, j = key
                     α_ij_tilde = compute_tilde_constants(α_ij, lifetimes[i], n, λ)
                     C[i, :] .-= α_ij_tilde * I_mat[j, :]
                 end
             end
             # Subtract the contributions from the quadratic parts
-            if !isnothing(βs_i)
-                for (key, β_ikl) in βs_i
+            if haskey(βs, i)
+                for (key, β_ikl) in βs[i]
                     i, k, l = key
                     β_ikl_tilde = compute_tilde_constants(β_ikl, lifetimes[i], n, λ)
                     C[i, :] .-= β_ikl_tilde * (I_mat[k, :] + I_mat[l, :])
                 end
 
                 # Compute constant term (which is simply 0 if no quadratic terms)
-                d[i] = compute_d_n(βs_i, lifetimes[i], moments, n, λ)
+                d[i] = compute_d_n(βs[i], lifetimes[i], moments, n, λ)
             end
         end
         # Solve and reset the system
