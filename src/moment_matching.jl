@@ -305,7 +305,7 @@ function minimise_log_loss(moments, q1)
     for i in eachindex(pars)
         l = x -> log_loss_func(x, moments[:, i], q1[i])
         # Use automatic differentiation to get the gradient and hessian of loss function
-        sol = Optim.optimize(l, x0; autodiff = :forward)
+        sol = Optim.optimize(l, x0, Optim.Options(g_tol = 1e-12); autodiff = :forward)
 
         # Transform parameters out of log-space
         pars[i] = exp.(sol.minimizer)
@@ -432,7 +432,9 @@ function minimise_loss(W_moments)
     upper_bd = 50 * ones(3)
 
     l = x -> loss_func(x, W_moments)
-    sol = Optim.optimize(l, lower_bd, upper_bd, x0; autodiff = :forward)
+    sol = Optim.optimize(
+        l, lower_bd, upper_bd, x0, Optim.Options(g_tol = 1e-12); autodiff = :forward
+    )
     pars = sol.minimizer
 
     return pars
