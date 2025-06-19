@@ -1,7 +1,7 @@
 # RandomTimeShifts
 
 This Julia package provides functionality for solving stochastic density dependent population models according to the regime outlined in:
-> Dylan Morris, John Maclean and Andrew J. Black., 2023. Computation of random time shift distributions for stochastic population models.
+> Dylan Morris, John Maclean and Andrew J. Black, 2024. Computation of random time-shift distributions for stochastic population models. Journal of Mathematical Biology, 89, 33, 10.1007/s00285-024-02132-6.
 
 The code is generalised for multivariable models through a general progeny generating function (PGF) structure. This implemention only incorporates linear and quadratic branching dynamics . See the paper for details. The methods are easily extensible to more complex branching structures but we opted for typical instances arising when working with biological populations (e.g. epidemics, within-host processes). The package provides full support for computing these distributions under different initial conditions and facilitates both approximations (the PE and MM methods) outlined in the paper.
 
